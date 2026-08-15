@@ -9,8 +9,8 @@ Python Reducer + Hadoop Streaming**.
 
 ``` text
 Ubuntu 24.04 LTS
-Apache Hadoop 3.5.0
-Java 21
+Apache Hadoop 3.3.6
+Java 8
 Python 3
 HDFS + YARN
 ```
@@ -31,15 +31,7 @@ jps
 ```
 
 Expected:
-
-``` text
-NameNode
-DataNode
-SecondaryNameNode
-ResourceManager
-NodeManager
-Jps
-```
+NameNode, DataNode, SecondaryNameNode, ResourceManager, NodeManager, Jps.
 
 ------------------------------------------------------------------------
 
@@ -67,20 +59,6 @@ hadoop is powerful
 world of hadoop
 hadoop makes big data processing easy
 big data is powerful
-```
-
-Save:
-
-``` text
-Ctrl+O
-Enter
-Ctrl+X
-```
-
-Check:
-
-``` bash
-cat input.txt
 ```
 
 ------------------------------------------------------------------------
@@ -111,17 +89,6 @@ Make executable:
 chmod +x mapper.py
 ```
 
-### Mapper idea
-
-``` text
-hello hadoop
-        ↓
-hello   1
-hadoop  1
-```
-
-The Mapper does **not** calculate the final frequency.
-
 ------------------------------------------------------------------------
 
 ## 5. Test the Mapper
@@ -129,8 +96,6 @@ The Mapper does **not** calculate the final frequency.
 ``` bash
 cat input.txt | ./mapper.py
 ```
-
-If this works, Python and the Mapper are correct.
 
 ------------------------------------------------------------------------
 
@@ -152,6 +117,8 @@ current_count = 0
 
 for line in sys.stdin:
     line = line.strip()
+    if not line:
+        continue
     word, count = line.split("\t", 1)
     count = int(count)
 
@@ -178,29 +145,9 @@ chmod +x reducer.py
 
 ## 7. Test Mapper + Reducer Locally
 
-This simulates Hadoop's Shuffle and Sort with Linux `sort`:
-
 ``` bash
 cat input.txt | ./mapper.py | sort | ./reducer.py
 ```
-
-Expected:
-
-``` text
-big         2
-data        2
-easy        1
-hadoop      4
-hello       2
-is          2
-makes       1
-of          1
-powerful    2
-processing  1
-world       2
-```
-
-If this works, the Python MapReduce logic is correct.
 
 ------------------------------------------------------------------------
 
@@ -208,12 +155,6 @@ If this works, the Python MapReduce logic is correct.
 
 ``` bash
 hdfs dfs -mkdir -p /wordcount/input
-```
-
-Check:
-
-``` bash
-hdfs dfs -ls /wordcount
 ```
 
 ------------------------------------------------------------------------
@@ -224,23 +165,9 @@ hdfs dfs -ls /wordcount
 hdfs dfs -put -f input.txt /wordcount/input/
 ```
 
-Check:
-
-``` bash
-hdfs dfs -ls /wordcount/input
-```
-
-View:
-
-``` bash
-hdfs dfs -cat /wordcount/input/input.txt
-```
-
 ------------------------------------------------------------------------
 
 ## 10. Remove Previous Output
-
-Hadoop will fail if the output directory already exists.
 
 ``` bash
 hdfs dfs -rm -r -f /wordcount/output
@@ -258,57 +185,12 @@ hadoop jar $HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming-*.jar \
 -reducer ~/hadoop-wordcount/reducer.py
 ```
 
-Conceptually:
-
-``` text
-Input
-  ↓
-HDFS
-  ↓
-Mapper
-  ↓
-Shuffle & Sort
-  ↓
-Reducer
-  ↓
-HDFS Output
-```
-
 ------------------------------------------------------------------------
 
 ## 12. View the Result
 
 ``` bash
-hdfs dfs -ls /wordcount/output
-```
-
-Expected:
-
-``` text
-_SUCCESS
-part-00000
-```
-
-Display:
-
-``` bash
 hdfs dfs -cat /wordcount/output/part-00000
-```
-
-Expected:
-
-``` text
-big         2
-data        2
-easy        1
-hadoop      4
-hello       2
-is          2
-makes       1
-of           1
-powerful    2
-processing  1
-world       2
 ```
 
 ------------------------------------------------------------------------
@@ -319,16 +201,9 @@ world       2
 hdfs dfs -get -f /wordcount/output ~/hadoop-wordcount/
 ```
 
-Then:
-
-``` bash
-cat ~/hadoop-wordcount/output/part-00000
-```
 ------------------------------------------------------------------------
 
 ## 14. Web-Interface
-
- We can see the Output at Web-Interface at Ports,
 
 ### For: HDFS / NameNode
 ```bash
@@ -368,28 +243,12 @@ http://localhost:8088
               HDFS Output
 ```
 
-Example:
-
-``` text
-Mapper:
-
-hadoop  1
-hadoop  1
-hadoop  1
-
-Reducer:
-
-hadoop  3
-```
-
 ------------------------------------------------------------------------
 
 # Common Errors
 
 ## `ssh localhost` → `Permission denied (publickey)`
-
 Run:
-
 ``` bash
 ssh-keygen -t ed25519
 cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
@@ -397,155 +256,17 @@ chmod 700 ~/.ssh
 chmod 600 ~/.ssh/authorized_keys
 ```
 
-Test:
-
-``` bash
-ssh localhost
-```
-
-Then:
-
-``` bash
-exit
-```
-
-------------------------------------------------------------------------
-
 ## `Connection refused` on HDFS
-
 Check:
-
 ``` bash
 jps
 ```
-
-If `NameNode` or `DataNode` is missing:
-
-``` bash
-start-dfs.sh
-```
-
-Test:
-
-``` bash
-hdfs dfs -ls /
-```
-
-------------------------------------------------------------------------
-
-## ResourceManager: `0.0.0.0:8032`
-
-If you see:
-
-``` text
-Connecting to ResourceManager at /0.0.0.0:8032
-```
-
-check:
-
-``` bash
-hadoop getconf -confKey yarn.resourcemanager.address
-```
-
-It must return:
-
-``` text
-localhost:8032
-```
-
-Check `yarn-site.xml`:
-
-``` bash
-nano $HADOOP_HOME/etc/hadoop/yarn-site.xml
-```
-
-Make sure it contains:
-
-``` xml
-<property>
-    <name>yarn.resourcemanager.hostname</name>
-    <value>localhost</value>
-</property>
-
-<property>
-    <name>yarn.resourcemanager.address</name>
-    <value>localhost:8032</value>
-</property>
-```
-
-Restart YARN:
-
-``` bash
-stop-yarn.sh
-start-yarn.sh
-```
-
-------------------------------------------------------------------------
-
-## `Could not find or load main class org.apache.hadoop.mapreduce.v2.app.MRAppMaster`
-
-Check:
-
-``` bash
-echo $HADOOP_MAPRED_HOME
-```
-
-Expected:
-
-``` text
-/home/<username>/hadoop
-```
-
-Check `mapred-site.xml` and ensure the MapReduce application classpath
-and `HADOOP_MAPRED_HOME` environment settings from the installation
-guide are present.
-
-Restart YARN:
-
-``` bash
-stop-yarn.sh
-start-yarn.sh
-```
-
-------------------------------------------------------------------------
+If NameNode is missing, run `start-dfs.sh`.
 
 ## Output directory already exists
-
-Remove it:
-
 ``` bash
 hdfs dfs -rm -r -f /wordcount/output
 ```
-
-Then run the streaming command again.
-
-------------------------------------------------------------------------
-
-## Mapper permission denied
-
-Run:
-
-``` bash
-chmod +x mapper.py reducer.py
-```
-
-------------------------------------------------------------------------
-
-## `hdfs` command points to the wrong program
-
-Check:
-
-``` bash
-which hdfs
-```
-
-It should point to:
-
-``` text
-$HADOOP_HOME/bin/hdfs
-```
-
-Do not install Ubuntu's unrelated `hdfs-cli` package for this exercise.
 
 ------------------------------------------------------------------------
 
