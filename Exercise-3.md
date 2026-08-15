@@ -324,6 +324,20 @@ Then:
 ``` bash
 cat ~/hadoop-wordcount/output/part-00000
 ```
+------------------------------------------------------------------------
+
+## 14. Web-Interface
+
+ We can see the Output at Web-Interface at Ports,
+
+### For: HDFS / NameNode
+```bash
+http://localhost:9870
+```
+### For: YARN / ResourceManager
+```bash
+http://localhost:8088
+```
 
 ------------------------------------------------------------------------
 
