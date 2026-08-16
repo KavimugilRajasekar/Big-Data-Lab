@@ -66,7 +66,7 @@ We create a table `ratings_partitioned` partitioned by the `rating` value.
 CREATE TABLE ratings_partitioned (
     userId INT, 
     movieId INT, 
-    \`timestamp\` BIGINT
+    `timestamp` BIGINT
 ) 
 PARTITIONED BY (rating FLOAT) 
 ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
