@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(start-dfs.sh)",
+      "Bash(start-yarn.sh)",
+      "Bash(hive *)",
+      "Bash(hdfs dfs *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
+    ]
+  }
+}

@@ -2,7 +2,7 @@
 
 ## Aim
 
-Install and configure Apache Hive 3.1.3 on a single-node Hadoop cluster, including resolving library conflicts and initializing the Metastore using Apache Derby.
+Install and configure Apache Hive 3.1.3 on a single-node Hadoop cluster. The installation is verified by creating Hive tables with various data types (primitive, collection, array, struct, map) and loading data using multiple methods (local files and HDFS).
 
 ## Environment
 
@@ -131,47 +131,72 @@ Expected output: `schemaTool completed`.
 
 ------------------------------------------------------------------------
 
-## 6. Verify Installation
+## 6. Verification and Capability Demonstration
 
 Start the Hive CLI:
 ``` bash
 hive
 ```
 
-Inside the Hive shell, perform a comprehensive test:
+### 6.1 Primitive Data Types and Local Loading
+Create a table with primitive types and load data from a local file.
 
 ``` sql
--- 1. Create a test database
 CREATE DATABASE IF NOT EXISTS hadoop_lab;
 USE hadoop_lab;
 
--- 2. Create a table
 CREATE TABLE students (
     id INT,
     name STRING,
     age INT,
     course STRING
 )
-ROW FORMAT DELIMITED
-FIELDS TERMINATED BY ',';
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
 
--- 3. Load data (from a local file students.txt)
-LOAD DATA LOCAL INPATH '/home/kavimugil-r/students.txt' INTO TABLE students;
+LOAD DATA LOCAL INPATH '/home/kavimugil-r/Desktop/Big Data/students.txt' INTO TABLE students;
 
--- 4. Basic SELECT
 SELECT * FROM students;
+```
 
--- 5. Aggregation
-SELECT course, COUNT(*) FROM students GROUP BY course;
+### 6.2 Collection Data Types (Array, Map, Struct)
+Demonstrate advanced data types using the following commands:
 
--- 6. Filtering
-SELECT * FROM students WHERE age > 20;
+**Array Type:**
+``` sql
+CREATE TABLE array_test (id INT, tags ARRAY<STRING>);
+INSERT INTO array_test VALUES (1, array('Hadoop', 'Hive', 'BigData'));
+SELECT tags[0] FROM array_test;
+```
 
--- 7. Metadata checks
-SHOW TABLES;
-DESCRIBE students;
+**Map Type:**
+``` sql
+CREATE TABLE map_test (id INT, attributes MAP<STRING, STRING>);
+INSERT INTO map_test VALUES (1, map('color', 'red', 'size', 'large'));
+SELECT attributes['color'] FROM map_test;
+```
 
-exit;
+**Struct Type:**
+``` sql
+CREATE TABLE struct_test (id INT, user_info STRUCT<name:STRING, city:STRING>);
+INSERT INTO struct_test VALUES (1, named_struct('name', 'Kavimugil', 'city', 'Chennai'));
+SELECT user_info.name FROM struct_test;
+```
+
+### 6.3 Loading Data from HDFS
+Load data that is already stored in the HDFS filesystem.
+
+``` bash
+# First, put a file in HDFS
+hdfs dfs -put -f "/home/kavimugil-r/Desktop/Big Data/hdfs_test.txt" /user/kavimugil-r/hdfs_test.txt
+```
+
+``` sql
+CREATE TABLE hdfs_table (id INT, fruit STRING, color STRING) 
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ',';
+
+LOAD DATA INPATH '/user/kavimugil-r/hdfs_test.txt' INTO TABLE hdfs_table;
+
+SELECT * FROM hdfs_table;
 ```
 
 ------------------------------------------------------------------------
@@ -180,38 +205,42 @@ exit;
 
 ## SLF4J Multiple Bindings Warning
 If you see `SLF4J: Class path contains multiple SLF4J bindings`, it is caused by a conflict between Hive's and Hadoop's logging libraries.
+**Solution:** `rm $HIVE_HOME/lib/log4j-slf4j-impl-2.17.1.jar`
 
-**Solution:**
-Remove the duplicate binding from Hive's library:
-``` bash
-rm $HIVE_HOME/lib/log4j-slf4j-impl-2.17.1.jar
-```
-This is safe as Hive will use the binding provided by Hadoop.
+## HDFS Permission Denied
+If `LOAD DATA INPATH` fails, ensure the Hive user has permissions to the HDFS file.
+**Solution:** `hdfs dfs -chmod 777 /user/kavimugil-r/hdfs_test.txt`
 
 ------------------------------------------------------------------------
 
 # Practical Exam Short Version
 
 ``` bash
-# 1. Environment Setup
+# 1. Setup
 source ~/.bashrc
-
-# 2. Resolve Guava Conflict
-rm $HIVE_HOME/lib/guava-19.0.jar
-cp $HADOOP_HOME/share/hadoop/common/lib/guava-*.jar $HIVE_HOME/lib/
-
-# 3. Initialize Metastore
 $HIVE_HOME/bin/schematool -dbType derby -initSchema
 
-# 4. Launch Hive
-hive
+# 2. Basic Table & Local Load
+hive -e "CREATE DATABASE IF NOT EXISTS lab; USE lab; 
+CREATE TABLE t1 (id INT, name STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','; 
+LOAD DATA LOCAL INPATH 'test.txt' INTO TABLE t1;"
+
+# 3. Advanced Types
+hive -e "USE lab; 
+CREATE TABLE t2 (id INT, m MAP<STRING,INT>); 
+INSERT INTO t2 VALUES (1, map('a',1));"
+
+# 4. HDFS Load
+hive -e "USE lab; 
+CREATE TABLE t3 (id INT, name STRING); 
+LOAD DATA INPATH '/user/kavimugil-r/test.txt' INTO TABLE t3;"
 ```
 
 ------------------------------------------------------------------------
 
 # Result
 
-Apache Hive 3.1.3 was successfully installed and configured on the Hadoop cluster. The `hive-site.xml` was configured for an embedded Derby metastore, the Guava library conflict was resolved, and the Metastore was initialized. The installation was verified by creating a database and table, loading a local dataset, and executing SQL queries to retrieve and aggregate data.
+Apache Hive 3.1.3 was successfully installed and configured. The installation was verified by demonstrating the creation of tables with primitive and complex data types (Array, Map, Struct) and successfully loading data using both local file paths and HDFS paths.
 
 # Final Environment Summary
 
