@@ -118,11 +118,12 @@ data.sum
 ```
 
 ### 4.2 PySpark Test
-Start PySpark and test a parallelized list:
+Start PySpark and test a simple operation. *Note: Use the DataFrame API instead of RDDs to avoid serialization errors in Python 3.11/3.12.*
 ``` python
 pyspark
-data = [1, 2, 3, 4, 5]
-sc.parallelize(data).sum()
+# Use DataFrame API to avoid Python 3.12 serialization bugs
+df = spark.range(1, 6)
+df.agg({"id": "sum"}).show()
 exit()
 ```
 
@@ -203,14 +204,13 @@ If `spark-submit` is not found, ensure `SPARK_HOME/bin` is added to your `PATH` 
 When reading files in PySpark, use `file:///` for local disk and `hdfs:///` for HDFS to avoid `AnalysisException`.
 
 ## PicklingError / IndexError (Serialization)
-If you encounter `_pickle.PicklingError: Could not serialize object: IndexError: tuple index out of range` during RDD operations, it is due to a version mismatch between the Python version of the Spark Driver and the Workers (common with Python 3.11+ and older Spark versions).
+If you encounter `_pickle.PicklingError: Could not serialize object: IndexError: tuple index out of range` during RDD operations, it is due to a version mismatch between the Python version (e.g., Python 3.12) and the Spark version (3.3.4). Spark 3.3.x is not fully compatible with Python 3.12's bytecode.
 
-**Solution**: Explicitly set the Python environment variables in your `~/.bashrc`:
-``` bash
-export PYSPARK_PYTHON=python3
-export PYSPARK_DRIVER_PYTHON=python3
-```
-Then run `source ~/.bashrc` and restart your PySpark session.
+**Solution**: 
+1. **Use DataFrames**: Instead of `sc.parallelize()`, use `spark.range()` or `spark.createDataFrame()`. This bypasses the Python serialization bug.
+2. **Downgrade Python**: Use Python 3.10 for full RDD support.
+3. **Upgrade Spark**: Use Spark 3.5.0 or later.
+
 
 ------------------------------------------------------------------------
 
