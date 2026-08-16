@@ -45,9 +45,11 @@ Libraries: pyspark, pandas, numpy, seaborn, matplotlib
 
 ------------------------------------------------------------------------
 
-## 1. Setup and Session Initialization
+# 1. Setup and Session Initialization
 
 Initialize the Spark session and import the necessary libraries for data manipulation and visualization.
+
+*Note: If you are using the `pyspark` interactive shell, the `spark` session is already created for you. You can skip the SparkSession builder block.*
 
 ``` python
 from pyspark.sql import SparkSession
@@ -57,9 +59,9 @@ import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
 
-# Initialize Spark Session
-spark = SparkSession.builder \
-    .appName("MovieLens_EDA") \
+# Initialize Spark Session (Optional in PySpark Shell)
+spark = SparkSession.builder \\
+    .appName("MovieLens_EDA") \\
     .getOrCreate()
 
 # Set visualization style
@@ -97,6 +99,8 @@ df_tags.select(countDistinct("tag")).show()
 
 ## 3. Data Preparation
 
+*Tip: When copy-pasting the `for` loop below into the PySpark shell, ensure you press Enter twice after the loop block to execute it.*
+
 ### 3.1 Extracting Movie Release Year
 Use Regular Expressions to extract the year from the movie title (e.g., "Toy Story (1995)").
 
@@ -114,7 +118,8 @@ for i in range(1, 11):
 
 # Calculate the number of genres per movie
 genre_columns = [f"genre{i}" for i in range(1, 11)]
-genre_count_expr = sum(when(col(col_name) != "0", 1).otherwise(0) for col_name in genre_columns)
+# We use .isNotNull() to check if a genre exists at that position
+genre_count_expr = sum(when(col(col_name).isNotNull(), 1).otherwise(0) for col_name in genre_columns)
 df_movies = df_movies.withColumn("genre_count", genre_count_expr).drop('genres')
 ```
 
