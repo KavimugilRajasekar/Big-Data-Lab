@@ -82,13 +82,15 @@ To solve these challenges, we apply the standard Data Science Process:
 
 We implement a recommendation engine using the Alternating Least Squares (ALS) algorithm, utilizing the MovieLens ratings dataset as a proxy for real-world user-item interactions.
 
+*Note: If you are using the `pyspark` interactive shell, the `spark` session is already created. You can skip the SparkSession builder block.*
+
 ``` python
 from pyspark.sql import SparkSession
 from pyspark.ml.recommendation import ALS
 from pyspark.ml.evaluation import RegressionEvaluator
 from pyspark.sql.functions import col
 
-# Initialize Spark Session
+# Initialize Spark Session (Optional in PySpark Shell)
 spark = SparkSession.builder \
     .appName("EcommerceRecommendation") \
     .config("spark.executor.memory", "4g") \
@@ -96,7 +98,7 @@ spark = SparkSession.builder \
 
 # 1. Load Real-World Dataset
 # Using MovieLens ratings as user-item interactions (userId, movieId/productId, rating)
-data_path = "/home/kavimugil-r/Desktop/Big Data/MoveisLens-DataSet/ratings.csv"
+data_path = "file:///home/kavimugil-r/Desktop/Big Data/MoveisLens-DataSet/ratings.csv"
 df = spark.read.csv(data_path, header=True, inferSchema=True)
 
 # Rename movieId to productId for e-commerce context
