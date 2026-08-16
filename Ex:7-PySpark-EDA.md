@@ -49,20 +49,14 @@ Libraries: pyspark, pandas, numpy, seaborn, matplotlib
 
 Initialize the Spark session and import the necessary libraries for data manipulation and visualization.
 
-*Note: If you are using the `pyspark` interactive shell, the `spark` session is already created for you. You can skip the SparkSession builder block.*
+*Note: If you are using the `pyspark` interactive shell, the `spark` session is already created for you. **Do not run the SparkSession builder code in the shell.***
 
 ``` python
-from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, mean, count, countDistinct, when, regexp_extract, split
 import numpy as np
 import pandas as pd
 import seaborn as sns
 from matplotlib import pyplot as plt
-
-# Initialize Spark Session (Optional in PySpark Shell)
-spark = SparkSession.builder \\
-    .appName("MovieLens_EDA") \\
-    .getOrCreate()
 
 # Set visualization style
 sns.set_style('darkgrid')
