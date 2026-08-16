@@ -75,11 +75,14 @@ plt.rcParams.update({'figure.figsize': (10, 8), 'axes.labelsize': 'medium'})
 
 Load the MovieLens dataset and verify the schema and initial rows.
 
+*Important: If you get a "Path does not exist" error mentioning `hdfs://`, it means Spark is looking in HDFS. Use the `file://` prefix to force it to read from your local hard drive.*
+
 ``` python
-# Load datasets
-df_movies = spark.read.csv("/home/kavimugil-r/Desktop/Big Data/MoveisLens-DataSet/movies.csv", header=True, inferSchema=True)
-df_ratings = spark.read.csv("/home/kavimugil-r/Desktop/Big Data/MoveisLens-DataSet/ratings.csv", header=True, inferSchema=True)
-df_tags = spark.read.csv("/home/kavimugil-r/Desktop/Big Data/MoveisLens-DataSet/tags.csv", header=True, inferSchema=True)
+# Load datasets using local file system prefix
+path = "file:///home/kavimugil-r/Desktop/Big Data/MoveisLens-DataSet/"
+df_movies = spark.read.csv(path + "movies.csv", header=True, inferSchema=True)
+df_ratings = spark.read.csv(path + "ratings.csv", header=True, inferSchema=True)
+df_tags = spark.read.csv(path + "tags.csv", header=True, inferSchema=True)
 
 # Display schemas and samples
 df_movies.printSchema()
