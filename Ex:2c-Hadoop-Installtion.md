@@ -96,15 +96,12 @@ $JAVA_HOME/bin/java -version
 
 ## 3. Install Apache Hadoop 3.3.6
 
-Download the binary distribution:
+Download the binary distribution from the [Official Apache Hadoop Releases Page](https://hadoop.apache.org/releases.html).
 
+Extract the binary distribution:
 ``` bash
 cd ~/Downloads
 wget https://downloads.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz
-```
-
-Extract and move to home directory:
-``` bash
 tar -xzf hadoop-3.3.6.tar.gz
 mv hadoop-3.3.6 ~/hadoop
 ```
@@ -420,3 +417,10 @@ SSH              : OpenSSH
 Deployment       : Single-node / pseudo-distributed
 Machines         : 1 laptop
 ```
+
+------------------------------------------------------------------------
+
+# Official Resources
+
+- **Official Download Page**: [Apache Hadoop Releases](https://hadoop.apache.org/releases.html)
+- **Installation Guide**: [Hadoop Installation Guide](https://hadoop.apache.org/docs/stable/hadoop-install.html)
