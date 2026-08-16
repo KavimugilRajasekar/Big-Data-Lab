@@ -17,7 +17,7 @@ Metastore: Apache Derby (Embedded)
 ### Configuration Flow
 
 ``` text
-Hive
+                    Hive
                      |
                      |
              hive-site.xml
