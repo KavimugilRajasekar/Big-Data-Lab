@@ -34,7 +34,6 @@ Extract the files and place them in your preferred dataset folder:
 First, we create a dedicated database for the project and define tables that match the CSV structure using primitive types (`INT`, `STRING`, `FLOAT`, `BIGINT`).
 
 ``` bash
-hive -e "
 CREATE DATABASE IF NOT EXISTS movielens;
 USE movielens;
 
@@ -75,7 +74,6 @@ CREATE TABLE IF NOT EXISTS links (
 ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' 
 STORED AS TEXTFILE 
 TBLPROPERTIES ('skip.header.line.count'='1');
-"
 ```
 
 ------------------------------------------------------------------------
@@ -85,13 +83,11 @@ TBLPROPERTIES ('skip.header.line.count'='1');
 Load the dataset from the local directory into the Hive tables.
 
 ``` bash
-hive -e "
 USE movielens;
 LOAD DATA LOCAL INPATH '/home/kavimugil-r/Desktop/Big Data/MoveisLens-DataSet/movies.csv' INTO TABLE movies;
 LOAD DATA LOCAL INPATH '/home/kavimugil-r/Desktop/Big Data/MoveisLens-DataSet/ratings.csv' INTO TABLE ratings;
 LOAD DATA LOCAL INPATH '/home/kavimugil-r/Desktop/Big Data/MoveisLens-DataSet/tags.csv' INTO TABLE tags;
 LOAD DATA LOCAL INPATH '/home/kavimugil-r/Desktop/Big Data/MoveisLens-DataSet/links.csv' INTO TABLE links;
-"
 ```
 
 ------------------------------------------------------------------------
