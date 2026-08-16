@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS ratings (
     userId INT, 
     movieId INT, 
     rating FLOAT, 
-    \`timestamp\` BIGINT
+    `timestamp` BIGINT
 ) 
 ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' 
 STORED AS TEXTFILE 
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS tags (
     userId INT, 
     movieId INT, 
     tag STRING, 
-    \`timestamp\` BIGINT
+    `timestamp` BIGINT
 ) 
 ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' 
 STORED AS TEXTFILE 
