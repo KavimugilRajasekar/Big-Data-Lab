@@ -1,10 +1,19 @@
-# Hadoop 3.3.6 Single-Node Setup on Ubuntu 24.04
+# Exercise 2c --- Hadoop Single-Node Installation
 
-A clean, practical installation guide for running Apache Hadoop 3.3.6 on
-**one Ubuntu 24.04 laptop**.
+## Aim
 
-This guide is intentionally designed for learning and laboratory
-practice. The laptop acts as the complete Hadoop environment:
+Install and configure Apache Hadoop 3.3.6 in single-node (pseudo-distributed) mode on Ubuntu 24.04 LTS to provide a foundation for HDFS, YARN, and MapReduce processing.
+
+## Environment
+
+``` text
+OS       : Ubuntu 24.04 LTS
+Java     : OpenJDK 8
+Python   : Python 3
+Hadoop   : Apache Hadoop 3.3.6
+SSH      : OpenSSH
+Mode     : Single-node / pseudo-distributed
+```
 
 ``` text
                     One Ubuntu Laptop
@@ -22,57 +31,21 @@ practice. The laptop acts as the complete Hadoop environment:
               \-------- MapReduce ------/
 ```
 
-This is a **single-node / pseudo-distributed Hadoop setup**. No second
-laptop or external Hadoop cluster is required.
+This is a **single-node / pseudo-distributed Hadoop setup**. No second laptop or external Hadoop cluster is required.
 
 ------------------------------------------------------------------------
 
-## 1. Tested Environment
+## 1. Install Required Software
 
-Recommended/tested environment:
-
-``` text
-OS       : Ubuntu 24.04 LTS
-Java     : OpenJDK 8
-Python   : Python 3
-Hadoop   : Apache Hadoop 3.3.6
-SSH      : OpenSSH
-Mode     : Single-node / pseudo-distributed
-```
-
-This setup is suitable for:
-
--   HDFS commands
--   YARN
--   MapReduce
--   Hadoop Streaming
--   Python Mapper/Reducer programs
--   Word Count and other MapReduce laboratory exercises
-
-------------------------------------------------------------------------
-
-# 2. Install Required Software
-
-Update packages:
+Update packages and install Java, Python, and SSH:
 
 ``` bash
 sudo apt update
-```
-
-Install Java, Python, SSH client/server:
-
-``` bash
 sudo apt install openjdk-8-jdk python3 openssh-client openssh-server -y
-```
-
-Enable SSH:
-
-``` bash
 sudo systemctl enable --now ssh
 ```
 
 Check:
-
 ``` bash
 java -version
 python3 --version
@@ -81,7 +54,6 @@ systemctl is-active ssh
 ```
 
 Expected:
-
 ``` text
 Java 1.8.x
 Python 3.x
@@ -90,147 +62,64 @@ active
 
 ------------------------------------------------------------------------
 
-# 3. Find JAVA_HOME
+## 2. Find and Configure JAVA_HOME
 
-Run:
-
+Find the actual Java installation path:
 ``` bash
 readlink -f "$(which java)"
 ```
 
-Example:
-
+Example output:
 ``` text
 /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java
 ```
 
-Therefore:
-
+Therefore, set:
 ``` text
 JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 ```
+*Do not blindly copy this path if another Java installation is active. You can verify with `ls /usr/lib/jvm/`.*
 
-Do not blindly copy this path if another Java installation is active.
-
-You can verify:
-
-``` bash
-ls /usr/lib/jvm/
-```
-
-------------------------------------------------------------------------
-
-# 4. Configure JAVA_HOME
-
-Add it to `~/.bashrc`:
-
+Add to `~/.bashrc`:
 ``` bash
 echo 'export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64' >> ~/.bashrc
-```
-
-Reload:
-
-``` bash
 source ~/.bashrc
 ```
 
-Check:
-
+Verify:
 ``` bash
 echo $JAVA_HOME
 $JAVA_HOME/bin/java -version
 ```
 
-Expected:
-
-``` text
-/usr/lib/jvm/java-8-openjdk-amd64
-```
-
-If your Java path is different, use your actual path instead.
-
 ------------------------------------------------------------------------
 
-# 5. Download Hadoop 3.3.6
-
-Go to Downloads:
-
-``` bash
-cd ~/Downloads
-```
+## 3. Install Apache Hadoop 3.3.6
 
 Download the binary distribution:
 
 ``` bash
+cd ~/Downloads
 wget https://downloads.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz
 ```
 
-Check:
-
+Extract and move to home directory:
 ``` bash
-ls -lh hadoop-3.3.6.tar.gz
-```
-
-Use:
-
-``` text
-hadoop-3.3.6.tar.gz
-```
-
-Do not use:
-
-``` text
-hadoop-3.3.6-src.tar.gz
-```
-
-The `-src` archive is the source distribution.
-
-------------------------------------------------------------------------
-
-# 6. Install Hadoop in the Home Directory
-
-Extract:
-
-``` bash
-cd ~/Downloads
 tar -xzf hadoop-3.3.6.tar.gz
-```
-
-Move it:
-
-``` bash
 mv hadoop-3.3.6 ~/hadoop
 ```
 
-Check:
-
+Check directory structure:
 ``` bash
 ls ~/hadoop
 ```
-
-You should see directories such as:
-
-``` text
-bin
-etc
-include
-lib
-libexec
-sbin
-share
-```
+Expected: `bin`, `etc`, `include`, `lib`, `libexec`, `sbin`, `share`.
 
 ------------------------------------------------------------------------
 
-# 7. Configure Hadoop Environment Variables
+## 4. Configure Hadoop Environment Variables
 
-Open:
-
-``` bash
-nano ~/.bashrc
-```
-
-Add:
+Add the following to `~/.bashrc`:
 
 ``` bash
 # Hadoop Environment
@@ -240,422 +129,284 @@ export HADOOP_MAPRED_HOME=$HADOOP_HOME
 export HADOOP_YARN_HOME=$HADOOP_HOME
 export HADOOP_COMMON_HOME=$HADOOP_HOME
 export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
-
 export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
 ```
 
-Reload:
-
+Reload and verify:
 ``` bash
 source ~/.bashrc
-```
-
-Check:
-
-``` bash
-echo $HADOOP_HOME
-echo $HADOOP_MAPRED_HOME
-which hadoop
-which hdfs
-```
-
-Expected pattern:
-
-``` text
-/home/<username>/hadoop
-/home/<username>/hadoop
-/home/<username>/hadoop/bin/hadoop
-/home/<username>/hadoop/bin/hdfs
-```
-
-Check Hadoop:
-
-``` bash
 hadoop version
-```
-
-Expected:
-
-``` text
-Hadoop 3.3.6
 ```
 
 ------------------------------------------------------------------------
 
-# 8. Configure Hadoop's Java Environment
+## 5. Configure Hadoop's Java Environment
 
-Open:
+Edit `$HADOOP_HOME/etc/hadoop/hadoop-env.sh`:
 
 ``` bash
 nano $HADOOP_HOME/etc/hadoop/hadoop-env.sh
 ```
 
-Make sure this line exists exactly once:
-
+Ensure this line exists exactly once:
 ``` bash
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 ```
+*Do NOT write `export JAVA_HOME=export JAVA_HOME=...`*
 
-Do NOT write:
-
-``` bash
-export JAVA_HOME=export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-```
-
-Verify:
-
+Verify with grep:
 ``` bash
 grep -n 'JAVA_HOME' $HADOOP_HOME/etc/hadoop/hadoop-env.sh
 ```
 
 ------------------------------------------------------------------------
 
-# 9. Create Local HDFS Storage Directories
+## 6. Create Local HDFS Storage Directories
 
-Create:
+Create directories to store the NameNode and DataNode data:
 
 ``` bash
 mkdir -p ~/hadoop_data/hdfs/namenode
 mkdir -p ~/hadoop_data/hdfs/datanode
 ```
 
-Structure:
-
-``` text
-~/hadoop_data/
-└── hdfs/
-    ├── namenode/
-    └── datanode/
-```
-
 ------------------------------------------------------------------------
 
-# 10. Configure core-site.xml
+## 7. Configure core-site.xml
 
-Open:
+Set the default filesystem URI:
 
 ``` bash
 nano $HADOOP_HOME/etc/hadoop/core-site.xml
 ```
 
 Use:
-
 ``` xml
-<?xml version="1.0"?>
-<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
-
 <configuration>
-
     <property>
         <name>fs.defaultFS</name>
-        <value>hdfs://localhost:9000</value>
+        <value>hdfs://127.0.0.1:9000</value>
     </property>
-
 </configuration>
 ```
 
 ------------------------------------------------------------------------
 
-# 11. Configure hdfs-site.xml
+## 8. Configure hdfs-site.xml
 
-Open:
+Set replication factor and storage paths:
 
 ``` bash
 nano $HADOOP_HOME/etc/hadoop/hdfs-site.xml
 ```
 
 Use:
-
 ``` xml
-<?xml version="1.0"?>
-<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
-
 <configuration>
-
     <property>
         <name>dfs.replication</name>
         <value>1</value>
     </property>
-
     <property>
         <name>dfs.namenode.name.dir</name>
         <value>file:///home/kavimugil-r/hadoop_data/hdfs/namenode</value>
     </property>
-
     <property>
         <name>dfs.datanode.data.dir</name>
         <value>file:///home/kavimugil-r/hadoop_data/hdfs/datanode</value>
     </property>
-
 </configuration>
-```
-
-Replace `<YOUR_USERNAME>` with:
-
-``` bash
-whoami
 ```
 
 ------------------------------------------------------------------------
 
-# 12. Configure MapReduce
+## 9. Configure mapred-site.xml
 
-Open:
+Configure MapReduce to use YARN and set environment paths:
 
 ``` bash
 nano $HADOOP_HOME/etc/hadoop/mapred-site.xml
 ```
 
 Use:
-
 ``` xml
-<?xml version="1.0"?>
-<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
-
 <configuration>
-
     <property>
         <name>mapreduce.framework.name</name>
         <value>yarn</value>
     </property>
-
     <property>
         <name>mapreduce.application.classpath</name>
-        <value>$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/*,$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/lib/*</value>
+        <value>/home/kavimugil-r/hadoop/share/hadoop/mapreduce/*,/home/kavimugil-r/hadoop/share/hadoop/mapreduce/lib/*</value>
     </property>
-
     <property>
         <name>yarn.app.mapreduce.am.env</name>
-        <value>HADOOP_MAPRED_HOME=$HADOOP_MAPRED_HOME</value>
+        <value>HADOOP_MAPRED_HOME=/home/kavimugil-r/hadoop</value>
     </property>
-
     <property>
         <name>mapreduce.map.env</name>
-        <value>HADOOP_MAPRED_HOME=$HADOOP_MAPRED_HOME</value>
+        <value>HADOOP_MAPRED_HOME=/home/kavimugil-r/hadoop</value>
     </property>
-
     <property>
         <name>mapreduce.reduce.env</name>
-        <value>HADOOP_MAPRED_HOME=$HADOOP_MAPRED_HOME</value>
+        <value>HADOOP_MAPRED_HOME=/home/kavimugil-r/hadoop</value>
     </property>
-
 </configuration>
 ```
 
 ------------------------------------------------------------------------
 
-# 13. Configure YARN
+## 10. Configure yarn-site.xml
 
-Open:
+Set the ResourceManager and NodeManager configurations:
 
 ``` bash
 nano $HADOOP_HOME/etc/hadoop/yarn-site.xml
 ```
 
 Use:
-
 ``` xml
-<?xml version="1.0"?>
-<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
-
 <configuration>
-
     <property>
         <name>yarn.resourcemanager.hostname</name>
         <value>localhost</value>
     </property>
-
     <property>
         <name>yarn.resourcemanager.address</name>
         <value>localhost:8032</value>
     </property>
-
     <property>
         <name>yarn.resourcemanager.scheduler.address</name>
         <value>localhost:8030</value>
     </property>
-
     <property>
         <name>yarn.resourcemanager.resource-tracker.address</name>
         <value>localhost:8031</value>
     </property>
-
     <property>
         <name>yarn.resourcemanager.admin.address</name>
         <value>localhost:8033</value>
     </property>
-
     <property>
         <name>yarn.resourcemanager.webapp.address</name>
         <value>localhost:8088</value>
     </property>
-
     <property>
         <name>yarn.nodemanager.aux-services</name>
         <value>mapreduce_shuffle</value>
     </property>
-
     <property>
         <name>yarn.nodemanager.aux-services.mapreduce_shuffle.class</name>
         <value>org.apache.hadoop.mapred.ShuffleHandler</value>
     </property>
-
 </configuration>
 ```
 
 ------------------------------------------------------------------------
 
-# 14. Configure Passwordless localhost SSH
+## 11. Configure Passwordless localhost SSH
 
-Hadoop's `start-dfs.sh` and `start-yarn.sh` scripts use SSH to
-start/manage daemons.
+Hadoop's `start-dfs.sh` and `start-yarn.sh` scripts use SSH to start/manage daemons.
 
-Test:
-
+Generate key and authorize it:
 ``` bash
-ssh localhost
-```
-
-If it fails, generate a key:
-
-``` bash
-ssh-keygen -t ed25519
+ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519
 cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
 chmod 700 ~/.ssh
 chmod 600 ~/.ssh/authorized_keys
 ```
 
-------------------------------------------------------------------------
-
-# 15. Verify Configuration Before Formatting
-
-Check:
-
+Test:
 ``` bash
-hadoop version
-echo $JAVA_HOME
-echo $HADOOP_HOME
-echo $HADOOP_MAPRED_HOME
-hadoop getconf -confKey fs.defaultFS
-hadoop getconf -confKey yarn.resourcemanager.address
+ssh localhost
+exit
 ```
 
 ------------------------------------------------------------------------
 
-# 16. Format the NameNode
+## 12. Final Verification and Formatting
 
-Format the NameNode:
+Verify configuration before formatting:
+``` bash
+hadoop version
+echo $JAVA_HOME
+echo $HADOOP_HOME
+hadoop getconf -confKey fs.defaultFS
+hadoop getconf -confKey yarn.resourcemanager.address
+```
 
+Format the NameNode (required only once):
 ``` bash
 hdfs namenode -format
 ```
 
 ------------------------------------------------------------------------
 
-# 17. Start HDFS
+## 13. Start and Verify Hadoop Services
 
-Start:
-
+Start HDFS:
 ``` bash
 start-dfs.sh
 ```
 
-Check:
-
-``` bash
-jps
-```
-
-Expected: NameNode, DataNode, SecondaryNameNode.
-
-------------------------------------------------------------------------
-
-# 18. Start YARN
-
-Start:
-
+Start YARN:
 ``` bash
 start-yarn.sh
 ```
 
-Check:
-
+Check running daemons:
 ``` bash
 jps
 ```
 
-Expected: NameNode, DataNode, SecondaryNameNode, ResourceManager, NodeManager.
+Expected: `NameNode`, `DataNode`, `SecondaryNameNode`, `ResourceManager`, `NodeManager`.
 
 ------------------------------------------------------------------------
 
-# 19. Stop Hadoop
-
-``` bash
-stop-yarn.sh
-stop-dfs.sh
-```
-
-------------------------------------------------------------------------
-
-# 20. Common Problems and Solutions
+# Common Errors
 
 ## NameNode PID Conflict
-If you see an error like:
-`namenode is running as process XXXX. Stop it first and ensure /tmp/hadoop-kavimugil-r-namenode.pid file is empty before retry.`
-
+If you see an error like `namenode is running as process XXXX. Stop it first and ensure /tmp/hadoop-kavimugil-r-namenode.pid file is empty before retry.`:
 1. Check if the process is actually running: `ps -fp XXXX`
 2. If not running, remove the stale PID file: `rm /tmp/hadoop-kavimugil-r-namenode.pid`
 3. Start HDFS again: `start-dfs.sh`
 
+## SSH Permission Denied
+If `ssh localhost` fails:
+``` bash
+cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
+```
+
 ------------------------------------------------------------------------
 
-# 21. Final Installation Verification
-
-Run these commands:
+# Practical Exam Short Version
 
 ``` bash
-java -version
-hadoop version
-echo $JAVA_HOME
-echo $HADOOP_HOME
-ssh localhost
-exit
-```
-
-Start Hadoop:
-
-``` bash
+# 1. Start Services
 start-dfs.sh
 start-yarn.sh
-```
 
-Check:
-
-``` bash
+# 2. Verify Daemons
 jps
+
+# 3. Check HDFS
 hdfs dfs -ls /
+
+# 4. Check YARN
 yarn node -list
-```
 
-------------------------------------------------------------------------
-
-# 22. Useful Daily Startup/Shutdown
-
-### Start
-``` bash
-start-dfs.sh
-start-yarn.sh
-```
-
-### Stop
-``` bash
+# 5. Stop Services
 stop-yarn.sh
 stop-dfs.sh
 ```
 
 ------------------------------------------------------------------------
 
-# 23. Final Environment
+# Result
+
+Apache Hadoop 3.3.6 was successfully installed and configured in single-node (pseudo-distributed) mode on Ubuntu 24.04. The HDFS and YARN daemons were verified using the `jps` command, and the web interfaces are accessible at `http://localhost:9870` (NameNode) and `http://localhost:8088` (ResourceManager).
+
+# Final Environment Summary
 
 ``` text
 Operating System : Ubuntu 24.04 LTS
