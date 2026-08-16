@@ -80,7 +80,7 @@ SET hive.exec.dynamic.partition = true;
 SET hive.exec.dynamic.partition.mode = nonstrict;
 
 INSERT OVERWRITE TABLE ratings_partitioned PARTITION(rating) 
-SELECT userId, movieId, \`timestamp\`, rating FROM ratings;
+SELECT userId, movieId, `timestamp`, rating FROM ratings;
 ```
 
 ### 2.3 Verify Partitioning
