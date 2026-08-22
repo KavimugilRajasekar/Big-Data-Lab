@@ -3,7 +3,7 @@ from pyspark.ml.recommendation import ALS
 from pyspark.ml.evaluation import RegressionEvaluator
 from pyspark.sql.functions import col
 
-# Initialize Spark Session
+# Initialize Spark Session (Optional in PySpark Shell)
 spark = SparkSession.builder \
     .appName("EcommerceRecommendation") \
     .config("spark.executor.memory", "4g") \
@@ -11,7 +11,6 @@ spark = SparkSession.builder \
 
 # 1. Load Real-World Dataset
 # Using MovieLens ratings as user-item interactions (userId, movieId/productId, rating)
-# Using file:/// prefix to force local filesystem access
 data_path = "file:///home/kavimugil-r/Desktop/Big Data/MoveisLens-DataSet/ratings.csv"
 df = spark.read.csv(data_path, header=True, inferSchema=True)
 
@@ -23,7 +22,7 @@ df = df.withColumnRenamed("movieId", "productId")
 
 # 3. Build ALS Model
 # coldStartStrategy="drop" ensures we don't get NaN for users not in training set
-als = ALS(userCol="userId", itemCol="productId", ratingCol="rating",
+als = ALS(userCol="userId", itemCol="productId", ratingCol="rating", 
           coldStartStrategy="drop", nonnegative=True)
 model = als.fit(training)
 
