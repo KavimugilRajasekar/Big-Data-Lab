@@ -16,6 +16,16 @@ Concepts : Immutability, Pure Functions, Higher-Order Functions, Recursion
 
 ------------------------------------------------------------------------
 
+## Installation
+
+If Scala is not already installed on your system, run the following commands:
+``` bash
+sudo apt-get update
+sudo apt-get install -y scala
+```
+
+------------------------------------------------------------------------
+
 ## 1. Create the Scala File
 
 ``` bash
@@ -81,29 +91,34 @@ object Ex9_ScalaCollections {
 
 ## 2. Run the Program
 
-### Installation (if not already installed)
-``` bash
-sudo apt-get update
-sudo apt-get install -y scala
-```
-
 ### Execution
 ``` bash
 scala Ex9_ScalaCollections.scala
 ```
 
 ### ⚠️ REPL Troubleshooting
-If you try to enter the interactive shell by typing `scala` and encounter a `NoClassDefFoundError: org/fusesource/jansi/AnsiOutputStream`, this is a known issue with the `apt` version of Scala on Ubuntu 24.04.
+If you try to enter the interactive shell by typing `scala` and encounter a `NoClassDefFoundError: org/fusesource/jansi/AnsiOutputStream`, this is a known issue with the `apt` version of Scala on Ubuntu 24.04 due to a Jansi version mismatch.
 
-**Solution**:
-The most reliable way to use the Scala REPL and modern Scala tools is to install **Scala-CLI**:
+**Solution (The Easy Way):**
+You can launch the shell by explicitly pointing to the compatible Jansi library:
 ``` bash
-curl -sSL https://virtuslab.github.io/scala-cli/install.sh | sh
-# Restart terminal or run:
-source ~/.bashrc
-# Now run the REPL:
-scala-cli repl
+scala -cp /usr/share/java/jansi1.jar
 ```
+
+**Making it Permanent (The Wrapper):**
+To avoid typing the long command every time, create a shortcut:
+``` bash
+# 1. Create the wrapper script
+echo '#!/bin/bash' > ~/scala-repl
+echo 'scala -cp /usr/share/java/jansi1.jar' >> ~/scala-repl
+
+# 2. Make it executable
+chmod +x ~/scala-repl
+
+# 3. (Optional) Move to bin for global access
+sudo mv ~/scala-repl /usr/local/bin/scala-repl
+```
+Now, you can simply type `scala-repl` to start the interactive shell.
 
 ------------------------------------------------------------------------
 
