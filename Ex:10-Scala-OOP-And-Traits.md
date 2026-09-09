@@ -16,6 +16,16 @@ Concepts : Traits, Mix-ins, Abstract Methods, Concrete Classes, Pattern Matching
 
 ------------------------------------------------------------------------
 
+## Installation
+
+If Scala is not already installed on your system, run the following commands:
+``` bash
+sudo apt-get update
+sudo apt-get install -y scala
+```
+
+------------------------------------------------------------------------
+
 ## 1. Create the Scala File
 
 ``` bash
@@ -92,31 +102,11 @@ object Ex10_ScalaOOP {
 
 ## 2. Run the Program
 
-### Installation (if not already installed)
-``` bash
-sudo apt-get update
-sudo apt-get install -y scala
-```
-
 ### Execution
 ``` bash
 scala Ex10_ScalaOOP.scala
 ```
 
-### ⚠️ REPL Troubleshooting
-If you try to enter the interactive shell by typing `scala` and encounter a `NoClassDefFoundError: org/fusesource/jansi/AnsiOutputStream`, this is a known issue with the `apt` version of Scala on Ubuntu 24.04.
-
-**Solution**:
-The most reliable way to use the Scala REPL and modern Scala tools is to install **Scala-CLI**:
-``` bash
-curl -sSL https://virtuslab.github.io/scala-cli/install.sh | sh
-# Restart terminal or run:
-source ~/.bashrc
-# Now run the REPL:
-scala-cli repl
-```
-
-------------------------------------------------------------------------
 
 ## 3. Verify the Output
 
