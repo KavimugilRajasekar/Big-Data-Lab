@@ -36,54 +36,94 @@ Enter the following implementation:
 
 ``` scala
 object Ex9_ScalaCollections {
-  def main(args: Array[String]): Unit = {
-    println("--- Exercise 9: Scala Collections & Functional Programming ---")
 
-    // 1. Lists, Sets, and Maps
-    val students = List(
-      Student("Alice", 85),
-      Student("Bob", 72),
-      Student("Charlie", 90),
-      Student("David", 65)
-    )
-
-    val subjects = Set("Math", "Physics", "Chemistry", "Math") // Set removes duplicates
-    println(s"Unique Subjects: $subjects")
-
-    val studentScores = Map("Alice" -> 85, "Bob" -> 72, "Charlie" -> 90, "David" -> 65)
-    println(s"Student Scores Map: $studentScores")
-
-    // 2. Pure Functions & Immutability
-    def calculateGrade(score: Int): String = {
-      if (score >= 90) "A"
-      else if (score >= 80) "B"
-      else if (score >= 70) "C"
-      else "D"
-    }
-
-    // 3. Map, Filter, and Fold
-    val topStudents = students.filter(s => s.score >= 75)
-    println(s"Students with score >= 75: ${topStudents.map(_.name)}")
-
-    val grades = students.map(s => (s.name, calculateGrade(s.score)))
-    println(s"Student Grades: $grades")
-
-    val totalScore = students.foldLeft(0)((acc, s) => acc + s.score)
-    println(s"Total Score of all students: $totalScore")
-
-    // 4. Recursion
-    def sumList(list: List[Int]): Int = {
-      if (list.isEmpty) 0
-      else list.head + sumList(list.tail)
-    }
-
-    val scoresOnly = List(85, 72, 90, 65)
-    println(s"Sum of scores using recursion: ${sumList(scoresOnly)}")
-
-    println("\nExecution completed successfully.")
+  // Pure function
+  def square(x: Int): Int = {
+    x * x
   }
 
-  case class Student(name: String, score: Int)
+  // Recursive function
+  def factorial(n: Int): Int = {
+    if (n <= 1)
+      1
+    else
+      n * factorial(n - 1)
+  }
+
+  def main(args: Array[String]): Unit = {
+
+    // -------------------------
+    // LIST
+    // -------------------------
+
+    val numbers = List(1, 2, 3, 4, 5)
+
+    println("Original List: " + numbers)
+
+    val doubled = numbers.map(_ * 2)
+
+    println("Doubled List: " + doubled)
+
+
+    // -------------------------
+    // FILTER
+    // -------------------------
+
+    val evenNumbers = numbers.filter(_ % 2 == 0)
+
+    println("Even Numbers: " + evenNumbers)
+
+
+    // -------------------------
+    // FOLD
+    // -------------------------
+
+    val sum = numbers.fold(0)(_ + _)
+
+    println("Sum: " + sum)
+
+
+    // -------------------------
+    // SET
+    // -------------------------
+
+    val set1 = Set(1, 2, 3, 4)
+    val set2 = Set(3, 4, 5, 6)
+
+    println("Set 1: " + set1)
+    println("Set 2: " + set2)
+
+    println("Union: " + (set1 union set2))
+    println("Intersection: " + (set1 intersect set2))
+
+
+    // -------------------------
+    // MAP
+    // -------------------------
+
+    val students = Map(
+      "Kavi" -> 90,
+      "Arun" -> 85,
+      "Priya" -> 95
+    )
+
+    println("Students: " + students)
+    println("Kavi's Mark: " + students("Kavi"))
+
+
+    // -------------------------
+    // PURE FUNCTION
+    // -------------------------
+
+    println("Square of 5: " + square(5))
+
+
+    // -------------------------
+    // RECURSION
+    // -------------------------
+
+    println("Factorial of 5: " + factorial(5))
+  }
 }
 ```
 
